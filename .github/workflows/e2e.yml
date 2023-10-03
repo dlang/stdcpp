@@ -30,7 +30,6 @@ on:
 jobs:
   main:
     name: Run
-    if: github.repository == 'dlang/stdcpp'
 
     strategy:
       fail-fast: false
