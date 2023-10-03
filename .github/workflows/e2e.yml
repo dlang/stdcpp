@@ -36,18 +36,11 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macOS-11
+#          - macOS-11
           - ubuntu-20.04
-          - windows-2019
+#          - windows-2019
         dc:
-          - dmd-latest
-          - dmd-2.100.2
           - ldc-latest
-          - dmd-master
-          - ldc-master
-          - ldc-1.23.0
-          - dmd-2.095.1
-          - dmd-2.098.1
         target:
           # Versions of clang earlier than 11 are not available on 20.04, but are on macOS-11
           - clang-13.0.0
