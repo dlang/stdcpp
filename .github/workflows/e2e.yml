@@ -35,26 +35,15 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-20.04
+          - { name: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
         dc:
           - ldc-latest
         target:
-          - g++-9
-
-        # This sets the configuration for each jobs
-        # There's a bit of duplication involved (e.g. breaking down g++-9.3 into 2 strings),
-        # but some items are unique (e.g. clang-9.0.0 and 4.0.1 have differences in their naming).
-        include:
-          # g++ boilerplace
-          - { target: g++-11, compiler: g++, cxx-version: 11.2.0, major: 11 }
-          - { target: g++-10, compiler: g++, cxx-version: 10.3.0, major: 10 }
-          - { target: g++-9, compiler: g++, cxx-version: 9.4.0, major: 9 }
-          # Platform boilerplate
-          - { os: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
+          - { name: g++-9, compiler: g++, cxx-version: 9.4.0 }
 
     # Using a specific version for reproductibility.
     # Feel free to update when a new release has matured.
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.name }}
     steps:
 
     ########################################
@@ -74,26 +63,26 @@ jobs:
     ########################################
     - name: '[Posix] Load cached clang'
       id: cache-clang
-      if: matrix.compiler == 'clang' && runner.os != 'Windows'
+      if: matrix.target.compiler == 'clang' && runner.os != 'Windows'
       uses: actions/cache@v3
       with:
-        path: ${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}/
-        key: ${{ matrix.cxx-version }}-${{ matrix.arch }}-2022-09-25-2121
+        path: ${{ github.workspace }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}/
+        key: ${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}-2022-09-25-2121
 
-    - name: '[Posix] Setting up clang ${{ matrix.cxx-version }}'
-      if: matrix.compiler == 'clang' && runner.os != 'Windows' && steps.cache-clang.outputs.cache-hit != 'true'
+    - name: '[Posix] Setting up clang ${{ matrix.target.cxx-version }}'
+      if: matrix.target.compiler == 'clang' && runner.os != 'Windows' && steps.cache-clang.outputs.cache-hit != 'true'
       run: |
-        if [ "${{ matrix.cxx-version }}" == "8.0.0" -o "${{ matrix.cxx-version }}" == "9.0.0" ]; then
-          wget --quiet --directory-prefix=${{ github.workspace }} https://releases.llvm.org/${{ matrix.cxx-version }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}.tar.xz
+        if [ "${{ matrix.target.cxx-version }}" == "8.0.0" -o "${{ matrix.target.cxx-version }}" == "9.0.0" ]; then
+          wget --quiet --directory-prefix=${{ github.workspace }} https://releases.llvm.org/${{ matrix.target.cxx-version }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}.tar.xz
         else
-          wget --quiet --directory-prefix=${{ github.workspace }} https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.cxx-version }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}.tar.xz
+          wget --quiet --directory-prefix=${{ github.workspace }} https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.target.cxx-version }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}.tar.xz
         fi
-        tar -x -C ${{ github.workspace }} -f ${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}.tar.xz
-        TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}/bin/clang'
+        tar -x -C ${{ github.workspace }} -f ${{ github.workspace }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}.tar.xz
+        TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}/bin/clang'
         # On OSX, the system header are installed via `xcode-select` and not distributed with clang
         # Since some part of the testsuite rely on CC being only a binary (not a command),
         # and config files where only introduced from 6.0.0, use a wrapper script.
-        if [ "${{ matrix.os }}" == "macOS-11" ]; then
+        if [ "${{ matrix.os.name }}" == "macOS-11" ]; then
           # Note: heredoc shouldn't be indented
           cat << 'EOF' > ${TMP_CC}-wrapper
         #!/bin/bash
@@ -112,10 +101,10 @@ jobs:
         fi
 
     - name: '[Posix] Setup environment variables'
-      if: matrix.compiler == 'clang' && runner.os != 'Windows'
+      if: matrix.target.compiler == 'clang' && runner.os != 'Windows'
       run: |
-        TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}/bin/clang'
-        if [ "${{ matrix.os }}" == "macOS-11" ]; then
+        TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}/bin/clang'
+        if [ "${{ matrix.os.name }}" == "macOS-11" ]; then
           echo "CC=${TMP_CC}-wrapper" >> $GITHUB_ENV
           echo "CXX=${TMP_CC}++-wrapper" >> $GITHUB_ENV
           echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
@@ -127,20 +116,20 @@ jobs:
     # On OSX and Linux, clang is installed by default and in the path,
     # so make sure ${CC} works
     - name: '[Posix] Verifying installed clang version'
-      if: matrix.compiler == 'clang' && runner.os != 'Windows'
+      if: matrix.target.compiler == 'clang' && runner.os != 'Windows'
       run: |
         set -e
-        if ${CXX} --version | grep -q 'version ${{ matrix.cxx-version }}'; then
+        if ${CXX} --version | grep -q 'version ${{ matrix.target.cxx-version }}'; then
           ${CXX} --version
         else
-            echo "Expected version ${{ matrix.cxx-version }}, from '${CXX}', got:"
+            echo "Expected version ${{ matrix.target.cxx-version }}, from '${CXX}', got:"
             ${CXX} --version
             exit 1
         fi
 
     # G++ is only supported on Linux
-    - name: '[Linux] Setting up g++ ${{ matrix.cxx-version }}'
-      if: matrix.compiler == 'g++'
+    - name: '[Linux] Setting up g++ ${{ matrix.target.cxx-version }}'
+      if: matrix.target.compiler == 'g++'
       run: |
         # Workaround bug in Github actions
         wget https://cli-assets.heroku.com/apt/release.key
@@ -152,19 +141,19 @@ jobs:
         # This ppa provides multiple versions of g++
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
         sudo apt-get update
-        sudo apt-get install -y ${{ matrix.target }} ${{ matrix.target }}-multilib
-        echo "CC=${{ matrix.target }}" >> $GITHUB_ENV
-        echo "CXX=${{ matrix.target }}" >> $GITHUB_ENV
+        sudo apt-get install -y ${{ matrix.target.name }} ${{ matrix.target.name }}-multilib
+        echo "CC=${{ matrix.target.name }}" >> $GITHUB_ENV
+        echo "CXX=${{ matrix.target.name }}" >> $GITHUB_ENV
 
     # Make sure ${CC} works and we don't use the $PATH one
     - name: '[Linux] Verifying installed g++ version'
-      if: matrix.compiler == 'g++'
+      if: matrix.target.compiler == 'g++'
       run: |
         set -e
-        if ${CXX} --version | grep -q '${{ matrix.target }} (Ubuntu '; then
+        if ${CXX} --version | grep -q '${{ matrix.target.name }} (Ubuntu '; then
           ${CXX} --version
         else
-            echo "Expected version ${{ matrix.target }}, from '${CXX}', got:"
+            echo "Expected version ${{ matrix.target.name }}, from '${CXX}', got:"
             ${CXX} --version
             exit 1
         fi
@@ -176,7 +165,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ github.workspace }}\tools\
-        key: ${{ matrix.os }}-dmc857
+        key: ${{ matrix.os.name }}-dmc857
 
     - name: '[Windows] Install dmc'
       if: runner.os == 'Windows' && steps.cache-dmc.outputs.cache-hit != 'true'
