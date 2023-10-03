@@ -1,0 +1,287 @@
+# End-to-end test for C++ bindings
+#
+# This provide the final test in D's C++ compatibility,
+# an end-to-end test using standard C++ library.
+# Testing C++ interop is done in two stages: at the lower layer,
+# compilers will test C++ features in isolation (or combination,
+# as can be seen in `dmd/compiler/test/runnable_cxx/` for example.
+# The second layer, this one, test C++ interop assuming the compiler
+# generates the proper mangling / uses the right ABI.
+name: E2E tests
+
+# Only triggers on pushes to master & stable, as well as PR to master and stable
+# Sometimes reverts appear in the upstream repository (e.g. when the revert button
+# is clicked by a contributor with commit access), this should be tested as PR).
+#
+# Also note that Github actions does not retrigger on target branch changes,
+# hence the check on push.
+on:
+  pull_request:
+    branches:
+      - master
+      - stable
+    paths-ignore:
+      - 'README.md'
+  push:
+    branches:
+      - master
+      - stable
+      # Use this branch name in your fork to test changes
+      - github-actions
+
+jobs:
+  main:
+    name: Run
+    if: github.repository == 'dlang/stdcpp'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macOS-11
+          - ubuntu-20.04
+          - windows-2019
+        dc:
+          - dmd-latest
+          - dmd-2.100.2
+          - ldc-latest
+          - dmd-master
+          - ldc-master
+          - ldc-1.23.0
+          - dmd-2.095.1
+          - dmd-2.098.1
+        target:
+          # Versions of clang earlier than 11 are not available on 20.04, but are on macOS-11
+          - clang-13.0.0
+          - clang-12.0.0
+          - clang-11.0.0
+          - clang-10.0.0
+          - clang-9.0.0
+          - clang-8.0.0
+          # For g++, we test the oldest compiler on Ubuntu 20.04, which is GCC-9
+          - g++-11
+          - g++-10
+          - g++-9
+          # Finally, we test MSVC 2013 - 2019
+          - msvc-2019
+          - msvc-2017
+          - msvc-2015
+          - msvc-2013
+
+        # Exclude target compilers not supported by the host
+        # Note: Pattern matching is not supported so this list is quite long,
+        # and brittle, as changing an msvc entry would break on OSX, for example.
+        exclude:
+          # 20.04 only has g++-9 through to 11, and clang-11.0.0 through to 13.0.0
+          - { os: ubuntu-20.04, target: clang-10.0.0 }
+          - { os: ubuntu-20.04, target: clang-9.0.0 }
+          - { os: ubuntu-20.04, target: clang-8.0.0 }
+          # OSX only supports clang
+          - { os: macOS-11, target: g++-11 }
+          - { os: macOS-11, target: g++-10 }
+          - { os: macOS-11, target: g++-9 }
+          - { os: macOS-11, target: msvc-2019 }
+          - { os: macOS-11, target: msvc-2017 }
+          - { os: macOS-11, target: msvc-2015 }
+          - { os: macOS-11, target: msvc-2013 }
+          # We don't test g++ on Windows as DMD only mangles for MSVC
+          - { os: windows-2019, target: g++-11 }
+          - { os: windows-2019, target: g++-10 }
+          - { os: windows-2019, target: g++-9 }
+
+          # TODO: Implement support for clang and MSVC2017 on Windows
+          # Currently those are still being run by the auto-tester
+          # We can hardly test below 2017 in the CI because there's
+          # no way to install it via command line
+          # (TODO: Test with 2015 as the blog post is slightly ambiguous)
+          # https://devblogs.microsoft.com/cppblog/introducing-the-visual-studio-build-tools/
+          - { os: windows-2019, target: msvc-2017 }
+          - { os: windows-2019, target: msvc-2015 }
+          - { os: windows-2019, target: msvc-2013 }
+          - { os: windows-2019, target: clang-13.0.0 }
+          - { os: windows-2019, target: clang-12.0.0 }
+          - { os: windows-2019, target: clang-11.0.0 }
+          - { os: windows-2019, target: clang-10.0.0 }
+          - { os: windows-2019, target: clang-9.0.0 }
+          - { os: windows-2019, target: clang-8.0.0 }
+
+        # This sets the configuration for each jobs
+        # There's a bit of duplication involved (e.g. breaking down g++-9.3 into 2 strings),
+        # but some items are unique (e.g. clang-9.0.0 and 4.0.1 have differences in their naming).
+        include:
+          # Clang boilerplate
+          - { target: clang-13.0.0, compiler: clang, cxx-version: 13.0.0 }
+          - { target: clang-12.0.0, compiler: clang, cxx-version: 12.0.0 }
+          - { target: clang-11.0.0, compiler: clang, cxx-version: 11.0.0 }
+          - { target: clang-10.0.0, compiler: clang, cxx-version: 10.0.0 }
+          - { target: clang-9.0.0, compiler: clang, cxx-version: 9.0.0 }
+          - { target: clang-8.0.0, compiler: clang, cxx-version: 8.0.0 }
+          # g++ boilerplace
+          - { target: g++-11, compiler: g++, cxx-version: 11.2.0, major: 11 }
+          - { target: g++-10, compiler: g++, cxx-version: 10.3.0, major: 10 }
+          - { target: g++-9, compiler: g++, cxx-version: 9.4.0, major: 9 }
+          # Platform boilerplate
+          - { os: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
+          - { os: macOS-11,  arch: x86_64-apple-darwin }
+          # Clang 9.0.0 have a different arch for OSX
+          - { os: macOS-11, target: clang-9.0.0, arch: x86_64-darwin-apple }
+
+    # Using a specific version for reproductibility.
+    # Feel free to update when a new release has matured.
+    runs-on: ${{ matrix.os }}
+    steps:
+
+    ########################################
+    #    Setting up the host D compiler    #
+    ########################################
+    - name: Prepare compiler
+      uses: dlang-community/setup-dlang@v1
+      with:
+        compiler: ${{ matrix.dc }}
+
+    # Checkout this repository
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    ########################################
+    #   Setting up the host C++ compiler   #
+    ########################################
+    - name: '[Posix] Load cached clang'
+      id: cache-clang
+      if: matrix.compiler == 'clang' && runner.os != 'Windows'
+      uses: actions/cache@v3
+      with:
+        path: ${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}/
+        key: ${{ matrix.cxx-version }}-${{ matrix.arch }}-2022-09-25-2121
+
+    - name: '[Posix] Setting up clang ${{ matrix.cxx-version }}'
+      if: matrix.compiler == 'clang' && runner.os != 'Windows' && steps.cache-clang.outputs.cache-hit != 'true'
+      run: |
+        if [ "${{ matrix.cxx-version }}" == "8.0.0" -o "${{ matrix.cxx-version }}" == "9.0.0" ]; then
+          wget --quiet --directory-prefix=${{ github.workspace }} https://releases.llvm.org/${{ matrix.cxx-version }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}.tar.xz
+        else
+          wget --quiet --directory-prefix=${{ github.workspace }} https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.cxx-version }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}.tar.xz
+        fi
+        tar -x -C ${{ github.workspace }} -f ${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}.tar.xz
+        TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}/bin/clang'
+        # On OSX, the system header are installed via `xcode-select` and not distributed with clang
+        # Since some part of the testsuite rely on CC being only a binary (not a command),
+        # and config files where only introduced from 6.0.0, use a wrapper script.
+        if [ "${{ matrix.os }}" == "macOS-11" ]; then
+          # Note: heredoc shouldn't be indented
+          cat << 'EOF' > ${TMP_CC}-wrapper
+        #!/bin/bash
+        # Note: We need to use this because github.workspace is not stable
+        SCRIPT_FULL_PATH=$(dirname "$0")
+        ${SCRIPT_FULL_PATH}/clang -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/ $@
+        EOF
+          # Invoking clang with `clang++` will link the C++ standard library
+          # Make sure we got two separate wrapper for this
+          cat << 'EOF' > ${TMP_CC}++-wrapper
+        #!/bin/bash
+        SCRIPT_FULL_PATH=$(dirname "$0")
+        ${SCRIPT_FULL_PATH}/clang++ -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/ $@
+        EOF
+          chmod +x ${TMP_CC}-wrapper ${TMP_CC}++-wrapper
+        fi
+
+    - name: '[Posix] Setup environment variables'
+      if: matrix.compiler == 'clang' && runner.os != 'Windows'
+      run: |
+        TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.cxx-version }}-${{ matrix.arch }}/bin/clang'
+        if [ "${{ matrix.os }}" == "macOS-11" ]; then
+          echo "CC=${TMP_CC}-wrapper" >> $GITHUB_ENV
+          echo "CXX=${TMP_CC}++-wrapper" >> $GITHUB_ENV
+          echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
+        else
+          echo "CC=${TMP_CC}" >> $GITHUB_ENV
+          echo "CXX=${TMP_CC}++" >> $GITHUB_ENV
+        fi
+
+    # On OSX and Linux, clang is installed by default and in the path,
+    # so make sure ${CC} works
+    - name: '[Posix] Verifying installed clang version'
+      if: matrix.compiler == 'clang' && runner.os != 'Windows'
+      run: |
+        set -e
+        if ${CXX} --version | grep -q 'version ${{ matrix.cxx-version }}'; then
+          ${CXX} --version
+        else
+            echo "Expected version ${{ matrix.cxx-version }}, from '${CXX}', got:"
+            ${CXX} --version
+            exit 1
+        fi
+
+    # G++ is only supported on Linux
+    - name: '[Linux] Setting up g++ ${{ matrix.cxx-version }}'
+      if: matrix.compiler == 'g++'
+      run: |
+        # Workaround bug in Github actions
+        wget https://cli-assets.heroku.com/apt/release.key
+        sudo apt-key add release.key
+        # Make sure we have the essentials
+        sudo apt-get update
+        sudo apt-get install ca-certificates
+        sudo apt-get install build-essential software-properties-common -y
+        # This ppa provides multiple versions of g++
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+        sudo apt-get update
+        sudo apt-get install -y ${{ matrix.target }} ${{ matrix.target }}-multilib
+        echo "CC=${{ matrix.target }}" >> $GITHUB_ENV
+        echo "CXX=${{ matrix.target }}" >> $GITHUB_ENV
+
+    # Make sure ${CC} works and we don't use the $PATH one
+    - name: '[Linux] Verifying installed g++ version'
+      if: matrix.compiler == 'g++'
+      run: |
+        set -e
+        if ${CXX} --version | grep -q '${{ matrix.target }} (Ubuntu '; then
+          ${CXX} --version
+        else
+            echo "Expected version ${{ matrix.target }}, from '${CXX}', got:"
+            ${CXX} --version
+            exit 1
+        fi
+
+    # Restore or install dmc (and DM make)
+    - name: '[Windows] Restore dmc from cache'
+      id: cache-dmc
+      if: runner.os == 'Windows'
+      uses: actions/cache@v3
+      with:
+        path: ${{ github.workspace }}\tools\
+        key: ${{ matrix.os }}-dmc857
+
+    - name: '[Windows] Install dmc'
+      if: runner.os == 'Windows' && steps.cache-dmc.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        $url = "http://ftp.digitalmars.com/Digital_Mars_C++/Patch/dm857c.zip"
+        $sha256hash = "F51CDFEB45EAF4FFBF7ABF0FE9B3D548B202B4528401005C2C3192B00BC32367"
+        Write-Host ('Downloading {0} ...' -f $url)
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $ProgressPreference = 'SilentlyContinue'
+        New-Item -ItemType directory -Path ${{ github.workspace }}\tools\
+        Invoke-WebRequest -Uri $url -OutFile '${{ github.workspace }}\tools\dmc.zip'
+        if ((Get-FileHash '${{ github.workspace }}\tools\dmc.zip' -Algorithm "SHA256").Hash -ne $sha256hash) {
+          exit 1
+        }
+        Expand-Archive '${{ github.workspace }}\tools\dmc.zip' -DestinationPath ${{ github.workspace }}\tools\
+
+    - name: '[Windows] Add VC toolset to PATH'
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: '[Windows] Set environment variables'
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        echo "VISUAL_STUDIO_LIB_NOT_DM=$(which lib.exe)" >> $GITHUB_ENV
+        echo "HOST_DMD=${{ env.DC }}" >> $GITHUB_ENV
+        echo "${{ github.workspace }}/tools/dm/bin/" >> $GITHUB_PATH
+
+    ########################################
+    #        Running the test suite        #
+    ########################################
+    - name: 'Run C++ test suite'
+      run: dub test
