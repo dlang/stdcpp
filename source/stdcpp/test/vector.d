@@ -10,8 +10,8 @@ import stdcpp.vector;
 
 unittest
 {
-    vector!int vec;
-    vec.push_back(42);
-    assert(vec.length == 1);
-    assert(vec[0] == 42);
+    auto p = vector!int(5);
+    p.push_back(42);
+    assert(p.length == 6);
+    assert(p[0] == 0);
 }
