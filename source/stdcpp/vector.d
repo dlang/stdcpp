@@ -23,6 +23,11 @@ module stdcpp.vector;
 
 import stdcpp.allocator;
 
+version(CppRuntime_Gcc)
+    version = Non_microsoft;
+else version(CppRuntime_Clang)
+    version = Non_microsoft;
+
 enum DefaultConstruct { value }
 
 /// Constructor argument for default construction
@@ -71,14 +76,6 @@ extern(D):
 
     ///
     ref vector opAssign(U)(auto ref vector!(U, Alloc) s)                    { opAssign(s.as_array); return this; }
-    ///
-    ref vector opAssign(T[] array)
-    {
-        clear();
-        reserve(array.length);
-        insert(0, array);
-        return this;
-    }
 
     ///
     void opIndexAssign()(auto ref T val, size_t index)                      { as_array[index] = val; }
@@ -102,18 +99,11 @@ extern(D):
     ///
     void opIndexOpAssign(string op)(T[] val)                                { mixin("as_array[] " ~ op ~ "= val[];"); }
 
+
     ///
     ref inout(T) front() inout pure nothrow @safe @nogc                     { return as_array[0]; }
     ///
     ref inout(T) back() inout pure nothrow @safe @nogc                      { return as_array[$-1]; }
-
-    ///
-    ref vector opOpAssign(string op : "~")(auto ref T item)                 { push_back(forward!item); return this; }
-    ///
-    ref vector opOpAssign(string op : "~")(T[] array)                       { insert(length, array); return this; }
-
-    ///
-    void append(T[] array)                                                  { insert(length, array); }
 
     /// Performs elementwise equality check.
     bool opEquals(this This, That)(auto ref That rhs)
@@ -130,10 +120,6 @@ extern(D):
 
     // Modifiers
     ///
-    void push_back(U)(auto ref U element)
-    {
-        emplace_back(forward!element);
-    }
 
     version (CppRuntime_Microsoft)
     {
@@ -179,8 +165,24 @@ extern(D):
         }
 
         ///
-        ~this()                                                             { _Tidy(); }
+        ~this()		                                                             { _Tidy(); }
 
+        ///
+        ref vector opAssign(T[] array)
+        {
+            clear();
+            reserve(array.length);
+            insert(0, array);
+            return this;
+        }
+
+        ///
+        ref vector opOpAssign(string op : "~")(auto ref T item)                 { push_back(forward!item); return this; }
+        ///
+        ref vector opOpAssign(string op : "~")(T[] array)                       { insert(length, array); return this; }
+
+        ///
+        void append(T[] array)                                                  { insert(length, array);}
         ///
         ref inout(Alloc) get_allocator() inout pure nothrow @safe @nogc     { return _Getal(); }
 
@@ -199,6 +201,12 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return _Get_data()._Myfirst[0 .. size()]; }
         ///
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { return _Get_data()._Myfirst[0 .. size()][i]; }
+
+        ///
+        void push_back(U)(auto ref U element)
+        {
+            emplace_back(forward!element);
+        }
 
         ///
         ref T emplace_back(Args...)(auto ref Args args)
@@ -750,9 +758,85 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return null; }
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { data()[0]; }
     }
-    else
+    else version (Non_microsoft)
     {
-        static assert(false, "C++ runtime not supported");
+        pointer _M_start;
+        pointer _M_finish;
+        pointer _M_end_of_storage;
+
+        //defining size for Gcc runtime
+        size_t size() const pure nothrow @safe @nogc
+        {
+            return size_type(this._M_finish - this._M_start);
+        }
+
+        extern(D) void push_back(const T item)
+        {
+            return this.push_back(item);
+        }
+
+        extern(D) void assign(size_t n, const T x)
+        {
+            return this.assign(n,x);
+        }
+
+        size_t capacity() const @safe nothrow pure @nogc
+        {
+            return size_type(this._M_end_of_storage - this._M_start);
+        }
+
+        ref inout(T) at(size_t __n) inout pure nothrow @nogc            {return this._M_start[0 .. size()][__n];}
+
+
+        extern(D) this(size_t n)
+        {
+            allocator!T alloc_instance = allocator!(T).init;
+            this (n, alloc_instance);
+        }
+
+        extern(D) this(size_t n, const T value)
+        {
+            allocator!T alloc_instance = allocator!(T).init;
+            this(n, value, alloc_instance);
+        }
+
+        inout(T)[] as_array() inout pure nothrow @trusted @nogc         {return this._M_start[0 .. size()];}
+
+        extern(C++) vector opAssign( const ref vector!T);
+
+        //binding push_back which takes only lvalues
+        extern(C++) void push_back(ref const T __x);
+
+        //vector(n) constructor
+        extern(C++) this(size_t __n, const ref allocator!T);
+
+        //copy constructor
+        extern(C++) this(ref const vector!(T, allocator!T));
+
+        //vector(allocator) constructor
+        extern(C++) this(const ref allocator!T allocc);
+
+
+        //vector(n, value) constructor
+        extern(C++) this(size_t __n, const ref T, const ref allocator!T);
+
+        extern(C++) void reserve(size_t __n);
+
+        extern(C++) void resize(size_t __n);
+
+        extern(C++) bool empty() const @safe @nogc;
+
+        extern(C++) void clear();
+
+        extern(C++) void pop_back();
+
+        extern(C++) void assign(size_t __n, ref const T __x);
+
+        extern(C++) void swap(ref vector!(T) x);
+
+        extern(C++) pointer begin() nothrow;
+
+        extern(C++) pointer end() nothrow;
     }
 }
 

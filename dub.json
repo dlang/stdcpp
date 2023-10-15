@@ -13,6 +13,21 @@
         },
         {
             "name": "unittest",
+            "lflags": [ "-lstdc++" ],
+            "preGenerateCommands": [
+                "clang++ -c extras/vector.cpp -o extras/vector.o",
+		"clang++ -c extras/list.cpp -o extras/list.o"
+            ],
+            "sourceFiles": [ "extras/*.o" ]
         },
+        {
+            "name": "unittest-gcc",
+            "lflags": [ "-lc++" ],
+            "preGenerateCommands": [
+                "g++ -c extras/vector.cpp -o extras/vector.o",
+		"g++ -c extras/list.cpp -o extras/list.o"
+            ],
+            "sourceFiles": [ "extras/*.o" ]
+        }
     ]
 }
