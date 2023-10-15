@@ -70,15 +70,28 @@ extern(D):
     inout(T)[] opIndex() inout pure nothrow @safe @nogc                     { return as_array(); }
 
     ///
-    ref vector opAssign(U)(auto ref vector!(U, Alloc) s)                    { opAssign(s.as_array); return this; }
-    ///
+    ref vector opAssign(U)(auto ref vector!(U, Alloc) s)		 { opAssign(s.as_array); return this; }
+
+
+
+/*********************************************************************
+commenting opOpAssign, append and opAssign out which uses insert 
+which is currently facing a mangling issue for gcc and focus to get the basics
+done and working 
+*********************************************************************/
+
+
+//commenting opAssign out to avoid insert for now
+/*    
     ref vector opAssign(T[] array)
     {
-        clear();
-        reserve(array.length);
-        insert(0, array);
+        
+	this.clear();
+        this.reserve(array.length);
+        this.insert(0, array);
         return this;
     }
+*/
 
     ///
     void opIndexAssign()(auto ref T val, size_t index)                      { as_array[index] = val; }
@@ -110,10 +123,14 @@ extern(D):
     ///
     ref vector opOpAssign(string op : "~")(auto ref T item)                 { push_back(forward!item); return this; }
     ///
-    ref vector opOpAssign(string op : "~")(T[] array)                       { insert(length, array); return this; }
+
+
+//commeting opOpAssign to avoid insert
+//    ref vector opOpAssign(string op : "~")(T[] array)                       { insert(length, array); return this; }
 
     ///
-    void append(T[] array)                                                  { insert(length, array); }
+//commenting append out to avoid insert for now
+//    void append(T[] array)                                                  { insert(length, array); }
 
     /// Performs elementwise equality check.
     bool opEquals(this This, That)(auto ref That rhs)
@@ -140,7 +157,8 @@ extern(D):
         //----------------------------------------------------------------------------------
         // Microsoft runtime
         //----------------------------------------------------------------------------------
-
+		//alias length = size;
+		//alias opDollar = length;
         ///
         this(DefaultConstruct) @nogc                                        { _Alloc_proxy(); }
         ///
@@ -750,10 +768,84 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return null; }
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { data()[0]; }
     }
-    else
+    else version(CppRuntime_Gcc)
     {
-        static assert(false, "C++ runtime not supported");
+
+
+	//commented out for now,will be cleared later
+       // static assert(false, "C++ runtime not supported");
+	
+
+
+	//instantiating allocator to rebind and use allocate function is current problem
+	//constructor has a form 'this(U)(ref allocator!U) {}' which the only option in mind is to circularly reference
+	// which causes an error
+	allocator!value_type p;
+	
+	p.rebind!pointer _M_start;
+	p.rebind!pointer _M_finish;
+	p.rebind!pointer _M_end_of_storage;
+
+
+	// vector(n) constructor
+
+	this()(size_t __n)
+	{
+		this._M_start = null;
+		this._M_finish = null;
+		this._M_end_of_storage = null;
+		 if( __n != 0)
+		{
+			this._M_start = p.allocate(__n);
+		}
+		else
+		{
+			this._M_start = null;
+		}
+		this._M_finish = this._M_start;
+		this._M_end_of_storage = this._M_start + __n;
+	
+	//default initialization, for arithmetic types
+	 
+	//hard coding fill_n for current testing, will organize into functions
+	//for optimal organization after test passes well.
+	
+	if(__traits(isArithmetic, T))
+	{
+		for (size_type i = 0; i < __n; i++)
+		{
+			*this._M_start++ = value_type.init;
+		}
+	}
+	
+		
+	//finish pointer moves to end of storage after initialization
+	
+	this._M_finish = this._M_end_of_storage; 
+	}
+
+
+	size_type size() const pure nothrow @safe @nogc
+	{
+		return size_type(this._M_finish - this._M_start);
+	}
+
+
+//emplace_back fully defined in our implementation file
+	ref T emplace_back(_Args...)( auto ref _Args args);
+
+	inout(T)[] as_array() inout pure nothrow @trusted @nogc		{return this._M_start[0 .. size()];}
+			
+
+	void reserve(size_type __n);
+
+	size_type capacity() const @safe nothrow pure @nogc
+	{
+		return size_type(this._M_end_of_storage - this._M_start);
+	}
+		
     }
+
 }
 
 
