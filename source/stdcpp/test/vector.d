@@ -7,11 +7,11 @@
 module stdcpp.test.vector;
 
 import stdcpp.vector;
-
+int a  = 42;
 unittest
 {
-    auto p = vector!int(5);
-    p.push_back(42);
+    vector!int p = 5;
+    p.push_back(a);
     assert(p.length == 6);
     assert(p[0] == 0);
 }
