@@ -775,6 +775,9 @@ extern(D):
 		}
 
 		inout(T)[] as_array() inout pure nothrow @trusted @nogc			{return this._M_start[0 .. size()];}
+
+		//binding push_back which takes only lvalues
+		extern(C++) void push_back(ref const T __x);
 	}
 }
 
