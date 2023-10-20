@@ -761,9 +761,18 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return null; }
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { data()[0]; }
     }
-    else
+    else version (CppRuntime_Gcc)
     {
-        static assert(false, "C++ runtime not supported");
+
+		pointer _M_start;
+		pointer _M_finish;
+		pointer _M_end_of_storage;
+
+		//defining size for Gcc runtime
+		size_t size() const pure nothrow @safe @nogc
+		{
+			return size_type(this._M_finish - this._M_start);
+		}
     }
 }
 
