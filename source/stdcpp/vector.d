@@ -98,18 +98,13 @@ extern(D):
     ///
     void opIndexOpAssign(string op)(T[] val)                                { mixin("as_array[] " ~ op ~ "= val[];"); }
 
+
     ///
     ref inout(T) front() inout pure nothrow @safe @nogc                     { return as_array[0]; }
     ///
     ref inout(T) back() inout pure nothrow @safe @nogc                      { return as_array[$-1]; }
 
-    ///
-    ref vector opOpAssign(string op : "~")(auto ref T item)                 { push_back(forward!item); return this; }
-    ///
-    ref vector opOpAssign(string op : "~")(T[] array)                       { insert(length, array); return this; }
-
-    ///
-    void append(T[] array)                                                  { insert(length, array); }
+	//the two opOpAssign, and append moved to microsoft runtime
 
     /// Performs elementwise equality check.
     bool opEquals(this This, That)(auto ref That rhs)
@@ -182,6 +177,15 @@ extern(D):
 			insert(0, array);
 			return this;
 		}
+
+		//moved the two opOpAssign, and append to microsoft runtime
+		///
+	    ref vector opOpAssign(string op : "~")(auto ref T item)                 { push_back(forward!item); return this; }
+		///
+	    ref vector opOpAssign(string op : "~")(T[] array)                       { insert(length, array); return this; }
+
+	    ///
+		void append(T[] array)                                                  { insert(length, array);}
         ///
         ref inout(Alloc) get_allocator() inout pure nothrow @safe @nogc     { return _Getal(); }
 
