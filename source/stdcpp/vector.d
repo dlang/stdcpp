@@ -130,10 +130,8 @@ extern(D):
 
     // Modifiers
     ///
-    void push_back(U)(auto ref U element)
-    {
-        emplace_back(forward!element);
-    }
+
+	//push_back moved to runtime microsoft
 
     version (CppRuntime_Microsoft)
     {
@@ -199,6 +197,12 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return _Get_data()._Myfirst[0 .. size()]; }
         ///
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { return _Get_data()._Myfirst[0 .. size()][i]; }
+
+		//move push_back to miCcrosoft runtime
+		void push_back(U)(auto ref U element)
+		{
+			emplace_back(forward!element);
+		}
 
         ///
         ref T emplace_back(Args...)(auto ref Args args)
