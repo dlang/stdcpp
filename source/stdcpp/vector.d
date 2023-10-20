@@ -773,7 +773,9 @@ extern(D):
 		{
 			return size_type(this._M_finish - this._M_start);
 		}
-    }
+
+		inout(T)[] as_array() inout pure nothrow @trusted @nogc			{return this._M_start[0 .. size()];}
+	}
 }
 
 
