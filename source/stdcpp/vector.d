@@ -147,7 +147,10 @@ done and working
 
     // Modifiers
     ///
-
+    void push_back(U)(auto ref U element)
+    {
+        emplace_back(forward!element);
+    }
 
     version (CppRuntime_Microsoft)
     {
@@ -234,10 +237,6 @@ done and working
             }
         }
 
-		void push_back(U)(auto ref U element)
-		{
-			 emplace_back(forward!element);
-		}
         ///
         void shrink_to_fit()
         {
@@ -778,45 +777,26 @@ done and working
 	
 
 
-
+	//instantiating allocator to rebind and use allocate function is current problem
+	//constructor has a form 'this(U)(ref allocator!U) {}' which the only option in mind is to circularly reference
+	// which causes an error
+	allocator!value_type p;
 	
-	
-	pointer _M_start;
-	pointer _M_finish;
-	pointer _M_end_of_storage;
+	p.rebind!pointer _M_start;
+	p.rebind!pointer _M_finish;
+	p.rebind!pointer _M_end_of_storage;
 
-	//member functions
+
 	// vector(n) constructor
 
-	//instantiating allocator
-
-	// 'auto allocator = allocator!(int).init' gives 'template instance `allocator!int` `allocator` is not a template declaration, it is a variable' error
-	// 'auto resolves allocator as a variable
-	// and so I actually define the right type ' Alloc' so it deduces it as a template struct
-	
-	//instantiation successful
-	Alloc alloc_instance = allocator!(int).init;
-
-
-	//still telling me i need 'this' to access member alloc_instance
-	//this(size_t __n, const ref Alloc alloc = this.alloc_instance);
-
-
-	//the template struct(allocator) not modifiable and giving
-	//	'`const(allocator!int)` is a `struct` definition and cannot be modified' error
-
-
-	
-	//so i continued with this, since getting the allocator passed as a default paramter
-	//to match the mangling is giving issues, and this successfully instantiates
-	this(size_t __n)
+	this()(size_t __n)
 	{
 		this._M_start = null;
 		this._M_finish = null;
 		this._M_end_of_storage = null;
 		 if( __n != 0)
 		{
-			this._M_start = alloc_instance.allocate(__n);
+			this._M_start = p.allocate(__n);
 		}
 		else
 		{
@@ -830,7 +810,7 @@ done and working
 	//hard coding fill_n for current testing, will organize into functions
 	//for optimal organization after test passes well.
 	
-	static if(__traits(isArithmetic, T))
+	if(__traits(isArithmetic, T))
 	{
 		for (size_type i = 0; i < __n; i++)
 		{
@@ -845,30 +825,19 @@ done and working
 	}
 
 
-
-	
-	//binding push_back which takes only lvalues parameters
-	void push_back(const ref T __x);
-
 	size_type size() const pure nothrow @safe @nogc
 	{
 		return size_type(this._M_finish - this._M_start);
 	}
 
 
-	// ref T emplace_back(_Args...)( auto ref _Args args)
-	
-	
-	bool empty() const pure nothrow @safe @nogc					{return _M_start == _M_finish;}
-	
-	inout(T)* data() inout pure nothrow @safe					{return _M_start;}	
+//emplace_back fully defined in our implementation file
+	ref T emplace_back(_Args...)( auto ref _Args args);
 
 	inout(T)[] as_array() inout pure nothrow @trusted @nogc		{return this._M_start[0 .. size()];}
 			
 
 	void reserve(size_type __n);
-
-	void resize(size_type __n);
 
 	size_type capacity() const @safe nothrow pure @nogc
 	{
