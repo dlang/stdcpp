@@ -72,13 +72,9 @@ extern(D):
     ///
     ref vector opAssign(U)(auto ref vector!(U, Alloc) s)                    { opAssign(s.as_array); return this; }
     ///
-    ref vector opAssign(T[] array)
-    {
-        clear();
-        reserve(array.length);
-        insert(0, array);
-        return this;
-    }
+
+	//opAssign moved to microsoft runtime
+
 
     ///
     void opIndexAssign()(auto ref T val, size_t index)                      { as_array[index] = val; }
@@ -177,8 +173,15 @@ extern(D):
         }
 
         ///
-        ~this()                                                             { _Tidy(); }
-
+        ~this()		                                                             { _Tidy(); }
+		//move opAssign to microsoft runtime
+		ref vector opAssign(T[] array)
+		{
+			clear();
+			reserve(array.length);
+			insert(0, array);
+			return this;
+		}
         ///
         ref inout(Alloc) get_allocator() inout pure nothrow @safe @nogc     { return _Getal(); }
 
