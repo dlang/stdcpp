@@ -774,6 +774,16 @@ extern(D):
 			return size_type(this._M_finish - this._M_start);
 		}
 
+
+		size_t capacity() const @safe nothrow pure @nogc
+		{
+			return size_type(this._M_end_of_storage - this._M_start);
+		}
+
+		ref inout(T) at(size_t __n) inout pure nothrow @nogc			{return this._M_start[0 .. size()][__n];}
+
+
+
 		inout(T)[] as_array() inout pure nothrow @trusted @nogc			{return this._M_start[0 .. size()];}
 
 		//binding push_back which takes only lvalues
