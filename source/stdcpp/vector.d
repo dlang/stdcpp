@@ -798,6 +798,8 @@ extern(D):
 		//vector(n, value) constructor
 		extern(C++) this(size_t __n, const ref T, const ref allocator!T);
 
+		extern(C++) void reserve(size_t __n);
+
 	}
 }
 
