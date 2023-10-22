@@ -800,6 +800,8 @@ extern(D):
 
 		extern(C++) void reserve(size_t __n);
 
+		extern(C++) void resize(size_t __n);
+
 	}
 }
 
