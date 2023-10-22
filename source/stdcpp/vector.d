@@ -804,6 +804,7 @@ extern(D):
 
 		extern(C++) bool empty() const @safe @nogc;
 
+		extern(C++) void clear();
 
 	}
 }
