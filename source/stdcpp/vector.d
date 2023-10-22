@@ -806,6 +806,8 @@ extern(D):
 
 		extern(C++) void clear();
 
+		extern(C++) void pop_back();
+
 	}
 }
 
