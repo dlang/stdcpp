@@ -789,9 +789,15 @@ extern(D):
 		//binding push_back which takes only lvalues
 		extern(C++) void push_back(ref const T __x);
 
-
 		//vector(n) constructor
 		extern(C++) this(size_t __n, const ref allocator!T);
+
+
+
+
+		//vector(n, value) constructor
+		extern(C++) this(size_t __n, const ref T, const ref allocator!T);
+
 	}
 }
 
