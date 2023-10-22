@@ -802,6 +802,9 @@ extern(D):
 
 		extern(C++) void resize(size_t __n);
 
+		extern(C++) bool empty() const @safe @nogc;
+
+
 	}
 }
 
