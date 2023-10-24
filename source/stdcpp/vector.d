@@ -808,6 +808,8 @@ extern(D):
 
 		extern(C++) void pop_back();
 
+		extern(C++) void assign(size_t __n, ref const T __x);
+
 	}
 }
 
