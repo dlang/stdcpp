@@ -792,6 +792,17 @@ extern(D):
 		ref inout(T) at(size_t __n) inout pure nothrow @nogc			{return this._M_start[0 .. size()][__n];}
 
 
+		extern(D) this(size_t n)
+		{
+			allocator!T alloc_instance = allocator!(T).init;
+			this (n, alloc_instance);
+		}
+
+		extern(D) this(size_t n, const T value)
+		{
+			allocator!T alloc_instance = allocator!(T).init;
+			this(n, value, alloc_instance);
+		}
 
 		inout(T)[] as_array() inout pure nothrow @trusted @nogc			{return this._M_start[0 .. size()];}
 
@@ -801,7 +812,11 @@ extern(D):
 		//vector(n) constructor
 		extern(C++) this(size_t __n, const ref allocator!T);
 
+		//copy constructor
+		extern(C++) this(ref const vector!(T, allocator!T));
 
+		//vector(allocator) constructor
+		extern(C++) this(const ref allocator!T allocc);
 
 
 		//vector(n, value) constructor

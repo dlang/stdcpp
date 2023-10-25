@@ -6,11 +6,11 @@
 
 module stdcpp.test.vector;
 import stdcpp.vector;
-import stdcpp.allocator;
-allocator!int alloc_instance = allocator!(int).init;
+
+
 unittest
 {
-    auto vec = vector!int(4, alloc_instance);
+    auto vec = vector!int(4);
     vec.push_back(42);
     assert(vec.length == 5);
     assert(vec[4] == 42);
@@ -25,8 +25,7 @@ unittest
 
 unittest
 {
-	int b = 9;
-	auto p = vector!int(4, b, alloc_instance);
+	auto p = vector!int(4,9);
 	assert(p.capacity() == 4);
 	p.reserve(6);
 	assert(p.capacity() == 6);
@@ -40,4 +39,17 @@ unittest
 	assert(p.sizeof == 24);//verifying three pointers
 	p.assign(3,8);
 	assert(p.length == 3);
+}
+
+unittest
+{
+	import stdcpp.allocator;
+	allocator!int alloc_instance = allocator!(int).init;
+	auto q = vector!int(alloc_instance);
+	q.push_back(4);
+	assert(q[0] == 4);
+	assert(q.length == 1);
+	auto cp_ctor = vector!int(q); // copy constructor
+	assert(cp_ctor[0] == 4);
+	assert(cp_ctor.length == 1);
 }
