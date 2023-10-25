@@ -774,6 +774,15 @@ extern(D):
 			return size_type(this._M_finish - this._M_start);
 		}
 
+		extern(D) void push_back(const T item)
+		{
+			return this.push_back(item);
+		}
+
+		extern(D) void assign(size_t n, const T x)
+		{
+			return this.assign(n,x);
+		}
 
 		size_t capacity() const @safe nothrow pure @nogc
 		{
