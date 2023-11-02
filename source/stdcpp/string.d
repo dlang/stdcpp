@@ -108,10 +108,10 @@ extern(C++, (StdNamespace)) struct char_traits(CharT)
     }
 }
 
-// I don't think we can have these here, otherwise symbols are emit to druntime, and we don't want that...
-//alias std_string = basic_string!char;
+// I think we can have these here now, since the project have been moved from druntime
+alias std_string = basic_string!char;
 //alias std_u16string = basic_string!wchar; // TODO: can't mangle these yet either...
-//alias std_u32string = basic_string!dchar;
+alias std_u32string = basic_string!dchar;
 //alias std_wstring = basic_string!wchar_t; // TODO: we can't mangle wchar_t properly (yet?)
 
 /**
@@ -1406,7 +1406,8 @@ extern(D):
         }
         else
         {
-            pragma(msg, "libstdc++ std::__cxx11::basic_string is not yet supported; the struct contains an interior pointer which breaks D move semantics!");
+			//commented out because __cxx11::basic_string seem to work fine
+           // pragma(msg, "libstdc++ std::__cxx11::basic_string is not yet supported; the struct contains an interior pointer which breaks D move semantics!");
 
             //----------------------------------------------------------------------------------
             // GCC/libstdc++ modern implementation
