@@ -19,6 +19,11 @@ unittest
 	assert(vec.length == 4);
 	vec.clear();
 	assert(vec.empty == 1);
+	vec.push_back(7);
+	vector!int new_vec = vec; //opAssign test
+	auto it = new_vec.begin();
+	assert(*(it) == 7);
+
 }
 
 
@@ -52,4 +57,6 @@ unittest
 	auto cp_ctor = vector!int(q); // copy constructor
 	assert(cp_ctor[0] == 4);
 	assert(cp_ctor.length == 1);
+	auto iter = cp_ctor.begin();
+	assert(*(iter) == 4); // first element in vector
 }

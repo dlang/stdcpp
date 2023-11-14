@@ -23,6 +23,11 @@ module stdcpp.vector;
 
 import stdcpp.allocator;
 
+version(CppRuntime_Gcc)
+	version = Non_microsoft;
+else version(CppRuntime_Clang)
+	version = Non_microsoft;
+
 enum DefaultConstruct { value }
 
 /// Constructor argument for default construction
@@ -761,7 +766,7 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return null; }
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { data()[0]; }
     }
-    else version (CppRuntime_Gcc)
+    else version (Non_microsoft)
     {
 
 		pointer _M_start;
@@ -806,6 +811,8 @@ extern(D):
 
 		inout(T)[] as_array() inout pure nothrow @trusted @nogc			{return this._M_start[0 .. size()];}
 
+		extern(C++) vector opAssign( const ref vector!T);
+
 		//binding push_back which takes only lvalues
 		extern(C++) void push_back(ref const T __x);
 
@@ -833,6 +840,12 @@ extern(D):
 		extern(C++) void pop_back();
 
 		extern(C++) void assign(size_t __n, ref const T __x);
+
+		extern(C++) void swap(ref vector!(T) x);
+
+		extern(C++) pointer begin() nothrow;
+
+		extern(C++) pointer end() nothrow;
 
 	}
 }
