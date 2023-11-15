@@ -17,7 +17,7 @@
             "preGenerateCommands": [
                 "g++ -c extras/list.cpp -o extras/list.o"
             ],
-            "sourceFiles": [ "extras/list.o" ]
+            "sourceFiles": [ "extras/*.o" ]
         },
     ]
 }
