@@ -6,7 +6,7 @@
  *		$(LINK2 http://www.boost.org/LICENSE_1.0.txt, Boost Software License 1.0).
  *		(See accompanying file License)
  * Authors:	Mathias Lang
- *			Emmanuel Nyarko
+ *		Emmanuel Nyarko
  */
 
 module stdcpp.list;
@@ -92,7 +92,7 @@ extern(C++, class) struct list(Type, Allocator)
 
 			extern(D) void assign(size_type n, const value_type item)
 			{
-                this.assign(n, item);
+				this.assign(n, item);
 			}
 
 			extern(D) void push_back(const Type item)
@@ -102,12 +102,12 @@ extern(C++, class) struct list(Type, Allocator)
 
 			extern(D) void push_front(const Type item)
 			{
-                this.push_front(item);
+				this.push_front(item);
 			}
 
 			extern(D) void remove(const value_type item)
 			{
-                this.remove(item);
+				this.remove(item);
 			}
 
 			void assign(size_type count, ref const value_type value);
