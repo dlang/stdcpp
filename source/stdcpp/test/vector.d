@@ -44,6 +44,19 @@ unittest
 	assert(p.sizeof == 24);//verifying three pointers
 	p.assign(3,8);
 	assert(p.length == 3);
+	p.push_back(4);
+	p.push_back(9);
+	auto iter = p.begin();
+	//single iteration movements
+	assert(*(iter) == 8);
+	iter++;
+	assert(*(iter) == 8);
+	iter++;
+	assert(*(iter) == 8);
+	iter++;
+	assert(*(iter) == 4);
+	iter++;
+	assert(*(iter) == 9); // 8,8,8,4,9 in that order
 }
 
 unittest
