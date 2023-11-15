@@ -91,9 +91,9 @@ extern(C++, class) struct list(Type, Allocator)
 			~this();
 
 			extern(D) void assign(size_type n, const value_type item)
-            {
+			{
                 this.assign(n, item);
-            }
+			}
 
 			extern(D) void push_back(const Type item)
 			{
@@ -101,14 +101,14 @@ extern(C++, class) struct list(Type, Allocator)
 			}
 
 			extern(D) void push_front(const Type item)
-            {
+			{
                 this.push_front(item);
-            }
+			}
 
 			extern(D) void remove(const value_type item)
-            {
+			{
                 this.remove(item);
-            }
+			}
 
 			void assign(size_type count, ref const value_type value);
 
@@ -150,7 +150,7 @@ extern(C++, class) struct list(Type, Allocator)
 
 			void merge( ref const list!Type other);
 
-            void merge(U)(ref const list!Type other, U comp);
+			void merge(U)(ref const list!Type other, U comp);
 
 			void remove(const ref value_type val);
 
@@ -183,27 +183,27 @@ extern(C++, class) struct list(Type, Allocator)
 			this(ref const allocator!Type);
 
 			//copy ctor
-            this(ref const list!Type __x);
+			this(ref const list!Type __x);
 
 			 //list(n,value) ctor
-            this(size_type __n, ref const value_type value, ref const allocator!Type);
+			this(size_type __n, ref const value_type value, ref const allocator!Type);
 
 			extern(D) this(size_type n, const value_type element)
-            {
-                allocator!Type alloc_instance = allocator!(Type).init;
-                this(n, element, alloc_instance);
-            }
+			{
+				allocator!Type alloc_instance = allocator!(Type).init;
+				this(n, element, alloc_instance);
+			}
 
 			this(ref const list!Type other, ref const allocator!Type);
 
 			//list(n) ctor
-            this(size_type __n, ref const allocator!Type);
+			this(size_type __n, ref const allocator!Type);
 
 			extern(D) this(size_type n)
-            {
-                allocator!Type alloc_instance = allocator!(Type).init;
-                this(n, alloc_instance);
-            }
+			{
+				allocator!Type alloc_instance = allocator!(Type).init;
+				this(n, alloc_instance);
+			}
 
 			~this();
 
@@ -250,7 +250,7 @@ extern(C++, class) struct list(Type, Allocator)
 
 			ref value_type back();
 
-//          ref const(value_type) back() const;
+//			ref const(value_type) back() const;
 
 			pointer begin() nothrow;
 
@@ -311,8 +311,8 @@ extern(C++, class) struct list(Type, Allocator)
 			size_type _M_size; //new list keeps track of it's size
 
 		}
-	}
-	else version(CppRuntime_Microsft)
-	{
-	}
+		}
+		else version(CppRuntime_Microsft)
+		{
+		}
 }
