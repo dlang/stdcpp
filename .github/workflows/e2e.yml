@@ -35,11 +35,11 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - { name: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
+          - { name: macos-11, arch: x86_64-darwin-apple }
         dc:
           - ldc-latest
         target:
-          - { name: clang-13, compiler: clang, cxx-version: 13.0.0 }
+          - { name: clang-9, compiler: clang, cxx-version: 9.0.0 }
 
     # Using a specific version for reproductibility.
     # Feel free to update when a new release has matured.
