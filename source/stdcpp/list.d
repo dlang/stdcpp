@@ -88,7 +88,7 @@ extern(C++, class) struct list(Type, Allocator)
 				this(n, type_instance, alloc_instance);
 			}
 
-			~this();
+//			~this();
 
 			extern(D) void assign(size_type n, const value_type item)
 			{
@@ -205,7 +205,7 @@ extern(C++, class) struct list(Type, Allocator)
 				this(n, alloc_instance);
 			}
 
-			~this();
+//			~this();
 
 			extern(D) void assign(size_type n, const value_type item)
 			{
