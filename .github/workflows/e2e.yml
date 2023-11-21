@@ -36,7 +36,6 @@ jobs:
       matrix:
         os:
           - { name: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
-//          - { name: macos-11, arch : x86_64-apple-darwin11.4.2 }
         dc:
           - ldc-latest
         target:
