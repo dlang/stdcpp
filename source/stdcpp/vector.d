@@ -848,7 +848,7 @@ extern(D):
 		extern(C++) pointer end() nothrow;
 
 	}
-	else version(OSX)
+	else version(x86_64)
 	{
 		pointer _M_start;
 		pointer _M_finish;
