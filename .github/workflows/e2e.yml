@@ -16,16 +16,16 @@ name: E2E tests
 # Also note that Github actions does not retrigger on target branch changes,
 # hence the check on push.
 on:
-#  pull_request:
- #   branches:
-  #    - main
-   # paths-ignore:
-    #  - 'README.md'
+  pull_request:
+    branches:
+      - v*.*.x
+    paths-ignore:
+      - 'README.md'
   push:
     branches:
       - main
-      # Use this branch name in your fork to test changes
-     # - github-actions
+       Use this branch name in your fork to test changes
+      - github-actions
 
 jobs:
   main:
