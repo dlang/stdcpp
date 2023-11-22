@@ -848,7 +848,7 @@ extern(D):
 		extern(C++) pointer end() nothrow;
 
 	}
-	else version(x86_64)
+	else version(CppRuntime_Clang)
 	{
 		pointer _M_start;
 		pointer _M_finish;
