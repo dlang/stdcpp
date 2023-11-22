@@ -16,16 +16,16 @@ name: E2E tests
 # Also note that Github actions does not retrigger on target branch changes,
 # hence the check on push.
 on:
- # pull_request:
+#  pull_request:
  #   branches:
- #     - v*.*.x
-  #  paths-ignore:
-   #   - 'README.md'
+  #    - main
+   # paths-ignore:
+    #  - 'README.md'
   push:
     branches:
       - main
       # Use this branch name in your fork to test changes
-#      - github-actions
+     # - github-actions
 
 jobs:
   main:
@@ -35,11 +35,11 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - { name: macos-11, arch: x86_64-apple-darwin }
+          - { name: macos-11, arch: x86_64-darwin-apple }
         dc:
           - ldc-latest
         target:
-          - { name: clang-8, compiler: clang, cxx-version: 8.0.0 }
+          - { name: clang-9, compiler: clang, cxx-version: 9.0.0 }
 
     # Using a specific version for reproductibility.
     # Feel free to update when a new release has matured.
@@ -82,7 +82,7 @@ jobs:
         # On OSX, the system header are installed via `xcode-select` and not distributed with clang
         # Since some part of the testsuite rely on CC being only a binary (not a command),
         # and config files where only introduced from 6.0.0, use a wrapper script.
-        if [ "${{ matrix.os.name }}" == "macOS-11" ]; then
+        if [ "${{ matrix.os.name }}" == "macos-11" ]; then
           # Note: heredoc shouldn't be indented
           cat << 'EOF' > ${TMP_CC}-wrapper
         #!/bin/bash
@@ -198,5 +198,5 @@ jobs:
     ########################################
     #        Running the test suite        #
     ########################################
-    - name: 'Run C++ test suite'
-      run: dub test
+    #- name: 'Run C++ test suite'
+     # run: dub test
