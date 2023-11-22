@@ -25,7 +25,7 @@ on:
     branches:
       - main
       # Use this branch name in your fork to test changes
-      - github-actions
+#      - github-actions
 
 jobs:
   main:
