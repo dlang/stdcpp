@@ -766,7 +766,7 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return null; }
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { data()[0]; }
     }
-    else version (linux)
+    else version (Posix)
     {
 
 		pointer _M_start;
@@ -848,7 +848,7 @@ extern(D):
 		extern(C++) pointer end() nothrow;
 
 	}
-	else version(CppRuntime_Clang)
+/*	else version(CppRuntime_Clang)
 	{
 		pointer _M_start;
 		pointer _M_finish;
@@ -927,7 +927,7 @@ extern(D):
 		extern(C++) pointer begin() nothrow;
 
 		extern(C++) pointer end() nothrow;
-	}
+	}*/
 }
 
 
