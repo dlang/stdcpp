@@ -35,7 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - { name: macos-11, arch: x86_64-darwin-apple }
+          - { name: macos-11, arch: x86_64-apple-darwin }
         dc:
           - ldc-latest
         target:
