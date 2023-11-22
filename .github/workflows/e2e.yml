@@ -35,11 +35,11 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - { name: macos-11, arch: x86_64-darwin-apple }
+          - { name: macos-11, arch: x86_64-apple-darwin }
         dc:
           - ldc-latest
         target:
-          - { name: clang-9, compiler: clang, cxx-version: 9.0.0 }
+          - { name: clang-13, compiler: clang, cxx-version: 13.0.0 }
 
     # Using a specific version for reproductibility.
     # Feel free to update when a new release has matured.
