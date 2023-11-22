@@ -766,7 +766,7 @@ extern(D):
         inout(T)[] as_array() inout pure nothrow @trusted @nogc             { return null; }
         ref inout(T) at(size_type i) inout pure nothrow @trusted @nogc      { data()[0]; }
     }
-    else version (Non_microsoft)
+    else version (linux)
     {
 
 		pointer _M_start;
