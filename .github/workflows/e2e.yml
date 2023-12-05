@@ -161,14 +161,14 @@ jobs:
     # Restore or install dmc (and DM make)
     - name: '[Windows] Restore dmc from cache'
       id: cache-dmc
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && startsWith(matrix.dc, 'dmd')
       uses: actions/cache@v3
       with:
         path: ${{ github.workspace }}\tools\
         key: ${{ matrix.os.name }}-dmc857
 
     - name: '[Windows] Install dmc'
-      if: runner.os == 'Windows' && steps.cache-dmc.outputs.cache-hit != 'true'
+      if: runner.os == 'Windows' && startsWith(matrix.dc, 'dmd') && steps.cache-dmc.outputs.cache-hit != 'true'
       shell: powershell
       run: |
         $url = "http://ftp.digitalmars.com/Digital_Mars_C++/Patch/dm857c.zip"
@@ -193,7 +193,9 @@ jobs:
       run: |
         echo "VISUAL_STUDIO_LIB_NOT_DM=$(which lib.exe)" >> $GITHUB_ENV
         echo "HOST_DMD=${{ env.DC }}" >> $GITHUB_ENV
-        echo "${{ github.workspace }}/tools/dm/bin/" >> $GITHUB_PATH
+        if [ ${{ startsWith(matrix.dc, 'dmd') }} ]; then
+          echo "${{ github.workspace }}/tools/dm/bin/" >> $GITHUB_PATH
+        fi
 
     ########################################
     #        Running the test suite        #
