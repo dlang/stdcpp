@@ -352,11 +352,17 @@ package:
 else version (CppRuntime_Clang)
 {
     import stdcpp.type_traits : is_empty;
+    import core.lifetime : forward;
 
 extern(C++, "std"):
 
     extern (C++, class) struct __compressed_pair(_T1, _T2)
     {
+        this(_U1, _U2)(auto ref _U1 __t1, auto ref _U2 __t2)
+        {
+            __value1_ = forward!(__t1);
+        }
+
     pragma (inline, true):
     extern(D):
         enum Ty1Empty = is_empty!_T1.value;
