@@ -73,11 +73,9 @@ jobs:
     - name: '[Posix] Setting up clang ${{ matrix.target.cxx-version }}'
       if: matrix.target.compiler == 'clang' && runner.os != 'Windows' && steps.cache-clang.outputs.cache-hit != 'true'
       run: |
-        if [ "${{ matrix.target.cxx-version }}" == "8.0.0" -o "${{ matrix.target.cxx-version }}" == "9.0.0" ]; then
-          wget --quiet --directory-prefix=${{ github.workspace }} https://releases.llvm.org/${{ matrix.target.cxx-version }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}.tar.xz
-        else
-          wget --quiet --directory-prefix=${{ github.workspace }} https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.target.cxx-version }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}.tar.xz
-        fi
+        # Download from Github release
+        wget --quiet --directory-prefix=${{ github.workspace }} https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.target.cxx-version }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}.tar.xz
+        # Extract
         tar -x -C ${{ github.workspace }} -f ${{ github.workspace }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}.tar.xz
         TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}/bin/clang'
         # On OSX, the system header are installed via `xcode-select` and not distributed with clang
