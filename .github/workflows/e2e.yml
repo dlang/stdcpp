@@ -39,7 +39,7 @@ jobs:
         dc:
           - ldc-latest
         target:
-#          - { name: g++-9, compiler: g++, cxx-version: 9.4.0 }
+          - { name: g++-9, compiler: g++, cxx-version: 9.4.0 }
           - { name: clang-13, compiler: clang, cxx-version: 13.0.0 }
 
     # Using a specific version for reproductibility.
@@ -202,4 +202,6 @@ jobs:
     #        Running the test suite        #
     ########################################
     - name: 'Run C++ test suite'
+      env:
+        CXX: ${{ matrix.target.compiler }}
       run: dub test
