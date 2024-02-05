@@ -286,7 +286,7 @@ extern(C++, class) struct list(Type, Allocator)
             private size_type _M_size; //new list keeps track of it's size
         }
     }
-    else version (CppRuntime_Microsft)
+    else version (CppRuntime_Clang)
     {
         this(def)
         {
@@ -410,6 +410,10 @@ extern(C++, class) struct list(Type, Allocator)
         void unique(U)(U p);
 
         private __list_imp!(value_type, allocator!Type) base;
+    }
+    else
+    {
+        static assert(0, "CppRuntime not yet supported");
     }
 }
 
