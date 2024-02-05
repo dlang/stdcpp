@@ -13,7 +13,9 @@
         },
         {
             "name": "unittest",
-            "lflags": [ "-lstdc++" ],
+            "lflags-posix": [ "-lstdc++" ],
+            "lflags-linux": [ "--export-dynamic" ],
+            "lflags-osx": [ "-export_dynamic" ],
             "preGenerateCommands": [
                 "$PACKAGE_DIR/extras/cxx-wrapper.sh vector",
                 "$PACKAGE_DIR/extras/cxx-wrapper.sh list"
