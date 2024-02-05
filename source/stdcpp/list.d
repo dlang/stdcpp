@@ -403,9 +403,107 @@ extern(C++, class) struct list(Type, Allocator)
 
         private __list_imp!(value_type, allocator!Type) base;
     }
-    else
+    else version(CppRuntime_Microsoft)
     {
-        static assert(0, "CppRuntime not yet supported");
+
+        this(ref const allocator!Type);
+
+        this(ref const list!Type __x);
+
+        this(size_type __n, ref const value_type value, ref const allocator!Type);
+
+		extern(D) this(size_type n, const value_type element)
+        {
+            allocator!Type alloc_instance = allocator!(Type).init;
+            this(n, element, alloc_instance);
+        }
+
+        this(ref const list!Type other, ref const allocator!Type);
+
+        this(size_type __n, ref const allocator!Type);
+
+        this(size_type n);
+
+        ~this();
+
+        extern(D) void assign(size_type n, const value_type item)
+        {
+            this.assign(n, item);
+        }
+
+        extern(D) void push_back(const Type item)
+        {
+            this.push_back(item);
+        }
+
+        extern(D) void push_front(const Type item)
+        {
+            this.push_front(item);
+        }
+
+        extern(D) void resize(size_type n, const value_type item)
+        {
+            this.resize(n, item);
+        }
+
+        ref list opAssign(ref const list!Type other);
+
+        void assign(size_type count, ref const value_type value);
+
+        allocator_type get_allocator() const nothrow;
+
+        ref value_type front();
+
+        ref value_type back();
+
+        pointer begin() nothrow;
+
+        pointer end() nothrow;
+
+        bool empty() const nothrow;
+
+        size_type size() const nothrow;
+
+        void clear() nothrow;
+
+        void push_back(ref const Type val);
+
+        void pop_back();
+
+        void push_front(ref const value_type val);
+
+        void pop_front();
+
+        void resize(size_type count);
+
+        void resize(size_type count, ref const value_type val);
+
+        void swap(ref list!Type other) nothrow;
+
+        void merge( ref list!Type other);
+
+        void merge(U)(ref list!Type other, U comp);
+
+        void reverse() nothrow;
+
+        void sort();
+
+        void sort(U)(U comp);
+
+        void unique();
+
+        void unique(U)(U p);
+
+        size_type unique();
+
+        size_type unique(U)(U p);
+
+        private struct node
+        {
+            node* prev;
+            node* next;
+        }
+        private node A;
     }
 }
 
