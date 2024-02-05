@@ -81,7 +81,9 @@ jobs:
         # On OSX, the system header are installed via `xcode-select` and not distributed with clang
         # Since some part of the testsuite rely on CC being only a binary (not a command),
         # and config files where only introduced from 6.0.0, use a wrapper script.
-        if [ "${{ matrix.os.name }}" == "macOS-11" ]; then
+        if ${{ startsWith(runner.os, 'macOS') }}; then
+          # This debugging line is useful when migrating to new runner versions
+          ls -l /Library/Developer/CommandLineTools/SDKs/
           # Note: heredoc shouldn't be indented
           cat << 'EOF' > ${TMP_CC}-wrapper
         #!/bin/bash
@@ -103,7 +105,7 @@ jobs:
       if: matrix.target.compiler == 'clang' && runner.os != 'Windows'
       run: |
         TMP_CC='${{ github.workspace }}/clang+llvm-${{ matrix.target.cxx-version }}-${{ matrix.os.arch }}/bin/clang'
-        if [ "${{ matrix.os.name }}" == "macOS-11" ]; then
+        if ${{ startsWith(runner.os, 'macOS') }}; then
           echo "CC=${TMP_CC}-wrapper" >> $GITHUB_ENV
           echo "CXX=${TMP_CC}++-wrapper" >> $GITHUB_ENV
           echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
