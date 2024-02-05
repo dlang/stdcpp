@@ -34,13 +34,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - { name: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
-        dc:
-          - ldc-latest
-        target:
-          - { name: g++-9, compiler: g++, cxx-version: 9.4.0 }
-          - { name: clang-13, compiler: clang, cxx-version: 13.0.0 }
+        include:
+          - os: { name: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
+            target: { name: g++-9, compiler: g++, cxx-version: 9.4.0 }
+            dc: ldc-latest
+          - os: { name: ubuntu-20.04, arch: x86_64-linux-gnu-ubuntu-20.04 }
+            target: { name: clang-13, compiler: clang, cxx-version: 13.0.0 }
+            dc: ldc-latest
+          - os: { name: macOS-12, arch: x86_64-apple-darwin }
+            target: { name: clang-15, compiler: clang, cxx-version: 13.0.0 }
+            dc: ldc-latest
+#          - os: { name: macOS-13-xlarge, arch: arm64-apple-darwin }
+#            target: { name: clang-15, compiler: clang, cxx-version: 15.0.1 }
+#            dc: ldc-latest
 
     # Using a specific version for reproductibility.
     # Feel free to update when a new release has matured.
