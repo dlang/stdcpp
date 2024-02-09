@@ -10,9 +10,13 @@ import stdcpp.list;
 
 unittest
 {
+    version (CppRuntime_Microsoft)
+        static assert(list!int.sizeof == 16);
+    else
+        static assert(list!int.sizeof == 24);
+
     auto p = list!int(5);
     p.push_back(5);
-    assert(p.sizeof == 24);
     assert(p.size() == 6);
     assert(p.front() == 0);
     assert(p.back() == 5);
