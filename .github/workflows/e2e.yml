@@ -47,6 +47,8 @@ jobs:
 #          - os: { name: macOS-13-xlarge, arch: arm64-apple-darwin }
 #            target: { name: clang-15, compiler: clang, cxx-version: 15.0.1 }
 #            dc: ldc-latest
+          - os: { name: windows-latest }
+            dc: ldc-latest
 
     # Using a specific version for reproductibility.
     # Feel free to update when a new release has matured.
