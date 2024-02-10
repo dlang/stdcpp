@@ -5,16 +5,23 @@
 *******************************************************************************/
 
 module stdcpp.test.string;
+
+import stdcpp.test.base;
 import stdcpp.string;
-version (CppRuntime_Gcc)
+
+extern(C++, "stdcpp", "test") size_t stringCapacity (const(char)* str);
+
+/// Test that the sizes matches
+unittest
 {
-    unittest
-    {
-        auto a = std_string("hello");
-        a.push_back('a');
-        assert(a.size() == 6);
-        assert(std_string.sizeof == 32);
-        // verifying small string optimization
-        assert(a.capacity == 15);
-    }
+    assert(cppSizeOf!(std_string) == std_string.sizeof);
+}
+
+unittest
+{
+    auto a = std_string("hello");
+    a.push_back('a');
+    assert(a.size() == 6);
+    // verifying small string optimization, this is 15 on GCC, 22-23 on clang
+    assert(a.capacity == stringCapacity("hello"));
 }
