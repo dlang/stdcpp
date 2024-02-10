@@ -6,15 +6,17 @@
 
 module stdcpp.test.list;
 
+import stdcpp.test.base;
 import stdcpp.list;
+
+/// Test that the sizes matches
+unittest
+{
+    assert(cppSizeOf!(list!int) == list!int.sizeof);
+}
 
 unittest
 {
-    version (CppRuntime_Microsoft)
-        static assert(list!int.sizeof == 16);
-    else
-        static assert(list!int.sizeof == 24);
-
     auto p = list!int(5);
     p.push_back(5);
     assert(p.size() == 6);

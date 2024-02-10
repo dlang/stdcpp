@@ -6,7 +6,15 @@
 
 module stdcpp.test.vector;
 
+import stdcpp.test.base;
 import stdcpp.vector;
+
+/// Test that the sizes matches
+unittest
+{
+    assert(cppSizeOf!(vector!int) == vector!int.sizeof);
+}
+
 version (CppRuntime_Gcc)
 {
     unittest
@@ -39,7 +47,6 @@ version (CppRuntime_Gcc)
         assert(p.capacity() == 12);
         p.resize(5);
         assert(p.length == 5);
-        assert(p.sizeof == 24);//verifying three pointers
         p.assign(3,8);
         assert(p.length == 3);
         p.push_back(4);
@@ -82,7 +89,6 @@ else version (CppRuntime_Clang)
         assert(vec.empty == 0);
         vec.reserve(6);
         assert(vec.capacity == 6);
-        assert(vec.sizeof == 24);
         vec.assign(3,8);
         assert(vec.length == 3);
         assert(vec[0] == 8);
@@ -98,8 +104,5 @@ else version (CppRuntime_Clang)
         vec3.swap(vec);
         assert(vec3.size == 9); // after swap
         assert(vec.size == 7);
-
-
-
     }
 }
