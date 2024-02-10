@@ -17,15 +17,13 @@
             "lflags-linux": [ "--export-dynamic" ],
             "lflags-osx": [ "-export_dynamic" ],
             "preGenerateCommands-posix": [
-                "$PACKAGE_DIR/extras/cxx-wrapper.sh vector",
-                "$PACKAGE_DIR/extras/cxx-wrapper.sh list"
+                "$PACKAGE_DIR/extras/cxx-wrapper.sh test",
             ],
             "preGenerateCommands-windows": [
-                "cl /c /Fo: $PACKAGE_DIR/extras/ $PACKAGE_DIR/extras/vector.cpp",
-                "cl /c /Fo: $PACKAGE_DIR/extras/ $PACKAGE_DIR/extras/list.cpp",
+                "cl /c /Fo: $PACKAGE_DIR/extras/ $PACKAGE_DIR/extras/test.cpp",
             ],
-            "sourceFiles-posix": [ "extras/*.o" ],
-            "sourceFiles-windows": [ "extras/*.obj" ]
+            "sourceFiles-posix": [ "extras/test.o" ],
+            "sourceFiles-windows": [ "extras/test.obj" ]
         }
     ]
 }
