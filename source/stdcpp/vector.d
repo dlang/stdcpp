@@ -163,24 +163,7 @@ extern(D):
 
         ///
         ~this()		                                                             { _Tidy(); }
-        ~this()		                                                             { _Tidy(); }
 
-        ///
-        ref vector opAssign(T[] array)
-        {
-            clear();
-            reserve(array.length);
-            insert(0, array);
-            return this;
-        }
-
-        ///
-        ref vector opOpAssign(string op : "~")(auto ref T item)                 { push_back(forward!item); return this; }
-        ///
-        ref vector opOpAssign(string op : "~")(T[] array)                       { insert(length, array); return this; }
-
-        ///
-        void append(T[] array)                                                  { insert(length, array);}
         ///
         ref vector opAssign(T[] array)
         {
