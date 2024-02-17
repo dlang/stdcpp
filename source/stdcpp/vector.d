@@ -843,10 +843,6 @@ extern(D):
     }
     else version (CppRuntime_Clang)
     {
-        pointer __begin_ =  null;
-        pointer __end_ = null;
-        auto __end_cap_ = __compressed_pair!(pointer, allocator_type)(null, __default_init_tag());
-
         inout(T)[] as_array() inout pure nothrow @trusted @nogc         {return this.__begin_[0 .. size()];}
 
         inout(value_type)* data() inout nothrow
@@ -908,6 +904,36 @@ extern(D):
         }
         ///
         extern(C++) void swap(ref vector x);
+        ///
+        void pop_back()
+        {
+            assert(!empty(), "vector.pop_back called on an empty container");
+            this.__destruct_at_end(this.__end_ -1);
+        }
+
+    private:
+        pointer __begin_;
+        pointer __end_;
+        auto __end_cap_ = __compressed_pair!(pointer, allocator_type)(null, __default_init_tag());
+
+        extern(C++) ref inout(allocator_type) __alloc() inout nothrow
+        {
+            return this.__end_cap_.second();
+        }
+
+        void __base_destruct_at_end(pointer __new_last) nothrow
+        {
+            pointer __soon_to_be_end = this.__end_;
+            while (__new_last != __soon_to_be_end)
+                allocator_traits!(Alloc).Destroy(__alloc(), --__soon_to_be_end);
+            this.__end_ = __new_last;
+        }
+
+        void __destruct_at_end(pointer __new_last) nothrow
+        {
+            __base_destruct_at_end(__new_last);
+         // Todo: add an ASAN annotations usage of unused capacity
+        }
     }
 }
 
