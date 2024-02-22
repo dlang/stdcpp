@@ -48,3 +48,11 @@ struct pair(T1, T2)
         }
     }
 }
+
+struct less(T)
+{
+    static bool opCall(const ref T left, const ref T right)
+    {
+        return left < right;
+    }
+}
