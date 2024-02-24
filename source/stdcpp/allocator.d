@@ -205,6 +205,11 @@ extern(D):
 
         ///
         enum size_t max_size = size_t.max / T.sizeof;
+
+        void __destroy(pointer __p)
+        {
+            destroy!false(__p);
+        }
     }
     else
     {
@@ -265,6 +270,14 @@ struct allocator_traits(Alloc)
             return a.select_on_container_copy_construction();
         else
             return a;
+    }
+
+    version (CppRuntime_Clang)
+    {
+        static void Destroy(ref Alloc alloc, pointer __p)
+        {
+            alloc.__destroy(__p);
+        }
     }
 }
 

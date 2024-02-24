@@ -104,5 +104,11 @@ else version (CppRuntime_Clang)
         vec3.swap(vec);
         assert(vec3.size == 9); // after swap
         assert(vec.size == 7);
+        vec.pop_back();
+        assert(vec.size == 6);
+        vec.pop_back();
+        assert(vec.size == 5);
+        vec.pop_back();
+        assert(vec.size == 4);
     }
 }
