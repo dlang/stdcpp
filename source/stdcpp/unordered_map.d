@@ -100,4 +100,8 @@ extern(C++, class) struct unordered_map(Key, value, Hash, KeyEqual, Alloc)
 
     private _Hashtable _M_h;
     }
+    else version(CppRuntime_Microsoft)
+    {
+        static assert(0, "CpppRuntime not yet supported");
+    }
 }

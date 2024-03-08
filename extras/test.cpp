@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <unordered_map>
 
 namespace stdcpp {
     namespace test {
@@ -37,3 +38,6 @@ template std::size_t stdcpp::test::cppSizeOf<std::vector<int> >();
 
 template class std::set<int>;
 template std::size_t stdcpp::test::cppSizeOf<std::set<int> >();
+
+template class std::unordered_map<int, char>;
+template std::size_t stdcpp::test::cppSizeOf<std::unordered_map<int, char> >();
